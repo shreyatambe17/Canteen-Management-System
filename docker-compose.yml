@@ -1,0 +1,36 @@
+services:
+  mongodb:
+    image: mongo:6
+    container_name: cms-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  backend:
+    build: ./canteen-management-backend
+    container_name: cms-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=canteenDB
+      - SECRET_KEY=mysecretkey
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./canteen-management-frontend
+    container_name: cms-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
